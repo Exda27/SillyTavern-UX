@@ -70,10 +70,5 @@ export default function getPublicLibConfig(forceDist = false) {
             filename: 'lib.js',
             libraryTarget: 'module',
         },
-        optimization: {
-            // Minification is disabled as a workaround for an incompatibility between Bun and the `terser-webpack-plugin`.
-            // Bun's `worker_threads` implementation does not support the options used by the plugin, causing a crash.
-            minimize: false,
-        },
     };
 }
