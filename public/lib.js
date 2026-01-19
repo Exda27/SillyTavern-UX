@@ -10,7 +10,7 @@ import localforage from 'localforage';
 import Handlebars from 'handlebars';
 import css from '@adobe/css-tools';
 import Bowser from 'bowser';
-import DiffMatchPatch from 'diff-match-patch';
+import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch';
 import { isProbablyReaderable, Readability } from '@mozilla/readability';
 import SVGInject from '@iconfu/svg-inject';
 import showdown from 'showdown';
