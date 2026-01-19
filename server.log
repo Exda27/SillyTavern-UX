@@ -1,0 +1,20 @@
+Node version: v22.21.1. Running in undefined environment. Server directory: /app
+Using config path: ./config.yaml
+Using data root: ./data
+Preferring IPv4 for DNS resolution
+
+SillyTavern 1.15.0
+Running 'jules-17567076155793224548-44d34edf' (c97f65c) - 1/19/2026, 8:26:28 AM UTC
+
+
+Compiling frontend libraries...
+webpack 5.98.0 compiled [1m[32msuccessfully[39m[22m in 2403 ms
+
+Launching in a browser: default...
+]2;SillyTavern WebServer\SillyTavern is listening on IPv4: 127.0.0.1:8000
+
+=================================================
+
+Go to: http://127.0.0.1:8000/ to open SillyTavern
+
+=================================================
