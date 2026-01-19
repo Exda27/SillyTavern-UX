@@ -6260,3 +6260,32 @@ body:not(.movingUI) .drawer-content.maximized {
     border-color: var(--error-color, #e87f7f);
     background-color: rgba(241, 163, 163, 0.2);
 }
+
+:root { --big-avatar-height-factor: 4; --big-avatar-width-factor: 3; }
+
+.mesAvatarWrapper > .avatar { --big-avatar-height-factor: 1.5 !important; --big-avatar-width-factor: 1.2 !important; }
+
+.character_select, .character_select_container, .character_name_block > .ch_name { max-width: calc(10px + var(--avatar-base-width) * var(--big-avatar-width-factor)) !important; }
+
+#send_textarea { height: 42px; }
+
+.draggable.zoomed_avatar { height: 100vh; max-height: 100% !important; padding: 20px; width: calc(50vw - 100px); max-width: calc(50vw); top: 0; left: 100px; backdrop-filter: none; }
+
+.zoomed_avatar_container { height: 100%; max-height: 100%; max-width: 100%; display: flex; justify-content: end; align-items: end; }
+
+.zoomed_avatar img { height: 90% !important; width: auto; max-width: 100% !important; object-fit: cover !important; border-radius: 10px; padding: 0px; vertical-align: center; }
+
+#sheld { left: calc(50vw); top: 0; bottom: 0; height: 100vh; margin: 0; max-height: 100% !important; width: var(--sheldWidth); max-width: calc(50vw - 100px); padding: 20px; }
+
+#chat { max-height: 100%; height: 100%; border-radius: 10px 10px 0px 0px; }
+
+#top-bar { position: absolute !important; left: 0; width: 100px; display: inline-block; height: 100%; box-shadow: 0 2px 20px 0 var(--black70a); backdrop-filter: blur(var(--SmartThemeBlurStrength)); background-color: var(--SmartThemeBlurTintColor); -webkit-backdrop-filter: blur(var(--SmartThemeBlurStrength)); z-index: 3005; margin: 0; }
+
+#top-settings-holder { position: absolute !important; display: flex;
+height: 100%; justify-content: space-around; z-index: 3005; position: relative; align-items: center; align-content: center; flex-direction: column; width: 100px; left: 0; }
+
+.fillLeft { left: 100px; right: 0; width: 80vw; margin: 0 auto; }
+
+#right-nav-panel { left: 100px; right: 0; width: 80vw; margin: 0 auto; top: var(--topBarBlockSize); height: max-content; }
+
+.drawer-content { position: fixed; left: 100px; right: 0; width: 80vw; margin: 0 auto; top: var(--topBarBlockSize); }
