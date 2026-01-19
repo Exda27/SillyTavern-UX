@@ -39,7 +39,7 @@ The hardware requirements are minimal: it will run on anything that can run Node
 
 Or get in touch with the developers directly:
 
-* [Post a GitHub issue](https://github.com/SillyTavern/SillyTavern/issues)
+* [Post a GitHub issue](https://github.com/YOUR_USERNAME/SillyTavern-UX/issues)
 
 ### I like your project! How do I contribute?
 
