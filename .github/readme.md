@@ -61,6 +61,15 @@ For detailed installation instructions, please visit our documentation:
 * **[Android (Termux) Installation Guide](https://docs.sillytavern.app/installation/android-(termux)/)**
 * **[Docker Installation Guide](https://docs.sillytavern.app/installation/docker/)**
 
+## Runtime (Bun)
+
+This repo is already configured to run with Bun (minimum version 1.1.26). The default `start` and
+`postinstall` scripts in `package.json` use Bun, so you can install dependencies and run the server with:
+
+1. Install Bun from <https://bun.sh/>.
+2. Install dependencies: `bun install`.
+3. Start the server: `bun server.js` or `bun run start`.
+
 ## License and credits
 
 **This program is distributed in the hope that it will be useful,
