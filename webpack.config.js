@@ -1,20 +1,19 @@
 import process from 'node:process';
 import path from 'node:path';
-import isDocker from 'is-docker';
 import webpack from 'webpack';
 import { serverDirectory } from './src/server-directory.js';
 
 /**
  * Get the Webpack configuration for the public/lib.js file.
- * 1. Docker has got cache and the output file pre-baked.
- * 2. Non-Docker environments use the global DATA_ROOT variable to determine the cache and output directories.
+ * 1. Local environments use the global DATA_ROOT variable to determine the cache and output directories.
+ * 2. Force-dist mode uses the repository dist folder for cache and output directories.
  * @param {boolean} forceDist Whether to force the use the /dist folder.
  * @returns {import('webpack').Configuration}
  * @throws {Error} If the DATA_ROOT variable is not set.
  * */
 export default function getPublicLibConfig(forceDist = false) {
     function getCacheDirectory() {
-        if (forceDist || isDocker()) {
+        if (forceDist) {
             return path.resolve(process.cwd(), 'dist', '_webpack', webpack.version, 'cache');
         }
 
@@ -26,7 +25,7 @@ export default function getPublicLibConfig(forceDist = false) {
     }
 
     function getOutputDirectory() {
-        if (forceDist || isDocker()) {
+        if (forceDist) {
             return path.resolve(process.cwd(), 'dist', '_webpack', webpack.version, 'output');
         }
 

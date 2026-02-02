@@ -1,23 +1,15 @@
-# SillyTavern
+# SillyTavern-UX
 
-LLM Frontend for Power Users
+User-focused SillyTavern fork centered on improving the UX and simplifying the experience.
 
-## Resources
+## Local development
 
-- GitHub: <https://github.com/SillyTavern/SillyTavern>
-- Docs: <https://docs.sillytavern.app/>
-- Discord: <https://discord.gg/sillytavern>
-- Reddit: <https://reddit.com/r/SillyTavernAI>
+This repo is configured to run with Bun (see the `start` and `postinstall` scripts in `package.json`).
 
-## Bun runtime
-
-This repo is already configured to run with Bun (see the `start` and `postinstall` scripts in `package.json`).
-To run it locally with Bun:
-
-1. Install Bun from <https://bun.sh/>.
+1. Install Bun.
 2. Install dependencies: `bun install`.
 3. Start the server: `bun server.js` or `bun run start`.
 
 ## License
 
-AGPL-3.0
+AGPL-3.0 (inherited from the upstream project).
