@@ -7,6 +7,9 @@ User-focused SillyTavern fork centered on improving the UX and simplifying the e
 This repo is configured to run with Bun (see the `start` and `postinstall` scripts in `package.json`).
 
 1. Install Bun.
+=======
+
+1. Install Bun.
 2. Install dependencies: `bun install`.
 3. Start the server: `bun server.js` or `bun run start`.
 
@@ -17,6 +20,7 @@ with a minimum version of Bun 1.1.26.
 To run it locally with Bun:
 
 1. Install Bun from <https://bun.sh/>.
+
 2. Install dependencies: `bun install`.
 3. Start the server: `bun server.js` or `bun run start`.
 
