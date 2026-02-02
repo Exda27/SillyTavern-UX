@@ -31,11 +31,9 @@ import {
     migrateUserData,
     requireLoginMiddleware,
     setUserDataMiddleware,
-    shouldRedirectToLogin,
     cleanUploads,
     getSessionCookieAge,
     verifySecuritySettings,
-    loginPageMiddleware,
 } from './users.js';
 
 import getWebpackServeMiddleware from './middleware/webpack-serve.js';
@@ -61,7 +59,6 @@ import { UPLOADS_DIRECTORY } from './constants.js';
 import { ensureThumbnailCache } from './endpoints/thumbnails.js';
 
 // Routers
-import { router as usersPublicRouter } from './endpoints/users-public.js';
 import { init as statsInit, onExit as statsOnExit } from './endpoints/stats.js';
 import { checkForNewContent } from './endpoints/content-manager.js';
 import { init as settingsInit } from './endpoints/settings.js';
@@ -190,12 +187,6 @@ if (!cliArgs.disableCsrf) {
 // Static files
 // Host index page
 app.get('/', cacheBuster.middleware, (request, response) => {
-    if (shouldRedirectToLogin(request)) {
-        const query = request.url.split('?')[1];
-        const redirectUrl = query ? `/login?${query}` : '/login';
-        return response.redirect(redirectUrl);
-    }
-
     return response.sendFile('index.html', { root: path.join(serverDirectory, 'public') });
 });
 
@@ -210,16 +201,10 @@ app.get('/callback/:source?', (request, response) => {
     return response.redirect(307, path);
 });
 
-// Host login page
-app.get('/login', loginPageMiddleware);
-
 // Host frontend assets
 const webpackMiddleware = getWebpackServeMiddleware();
 app.use(webpackMiddleware);
 app.use(express.static(path.join(serverDirectory, 'public'), {}));
-
-// Public API
-app.use('/api/users', usersPublicRouter);
 
 // Everything below this line requires authentication
 app.use(requireLoginMiddleware);
