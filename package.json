@@ -93,7 +93,7 @@
         "yauzl": "^3.2.0"
     },
     "engines": {
-        "node": ">= 18"
+        "bun": ">= 1.1.26"
     },
     "overrides": {
         "vectra": {
@@ -118,18 +118,18 @@
     },
     "version": "1.15.0",
     "scripts": {
-        "start": "node server.js",
-        "debug": "node --inspect server.js",
-        "start:global": "node server.js --global",
-        "start:electron": "cd ./src/electron && npm run start",
+        "start": "bun server.js",
+        "debug": "bun --inspect server.js",
+        "start:global": "bun server.js --global",
+        "start:electron": "cd ./src/electron && bun run start",
         "start:deno": "deno run --allow-run --allow-net --allow-read --allow-write --allow-sys --allow-env server.js",
         "start:bun": "bun server.js",
-        "start:no-csrf": "node server.js --disableCsrf",
-        "postinstall": "node post-install.js",
+        "start:no-csrf": "bun server.js --disableCsrf",
+        "postinstall": "bun post-install.js",
         "lint": "eslint \"src/**/*.js\" \"public/**/*.js\" ./*.js",
         "lint:fix": "eslint \"src/**/*.js\" \"public/**/*.js\" ./*.js --fix",
-        "plugins:update": "node plugins update",
-        "plugins:install": "node plugins install"
+        "plugins:update": "bun plugins update",
+        "plugins:install": "bun plugins install"
     },
     "bin": {
         "sillytavern": "./src/server-global.js"

@@ -1,7 +1,7 @@
-FROM node:lts-alpine3.22
+FROM oven/bun:1.1.26-alpine
 
 # Arguments
-ARG APP_HOME=/home/node/app
+ARG APP_HOME=/home/bun/app
 
 # Install system dependencies
 RUN apk add --no-cache gcompat tini git git-lfs
@@ -16,8 +16,8 @@ ENV NODE_ENV=production
 COPY . ./
 
 RUN \
-  echo "*** Install npm packages ***" && \
-  npm ci --no-audit --no-fund --loglevel=error --no-progress --omit=dev && npm cache clean --force
+  echo "*** Install bun packages ***" && \
+  bun install --production
 
 # Create config directory and link config.yaml
 RUN \
@@ -28,7 +28,7 @@ RUN \
 # Pre-compile public libraries
 RUN \
   echo "*** Run Webpack ***" && \
-  node "./docker/build-lib.js"
+  bun "./docker/build-lib.js"
 
 # Set the entrypoint script
 RUN \

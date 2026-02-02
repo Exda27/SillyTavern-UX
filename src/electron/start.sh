@@ -3,9 +3,9 @@
 # Make sure pwd is the directory of the script
 cd "$(dirname "$0")"
 
-echo "Assuming nodejs and npm is already installed. If you haven't installed them already, do so now"
-echo "Installing Electron Wrapper's Node Modules..."
-npm i --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev
+echo "Assuming bun is already installed. If you haven't installed it already, do so now"
+echo "Installing Electron Wrapper's Bun Modules..."
+bun install --production
 
 echo "Starting Electron Wrapper..."
-npm run start -- "$@"
+bun run start -- "$@"

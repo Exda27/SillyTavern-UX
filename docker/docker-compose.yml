@@ -10,8 +10,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - "./config:/home/node/app/config"
-      - "./data:/home/node/app/data"
-      - "./plugins:/home/node/app/plugins"
-      - "./extensions:/home/node/app/public/scripts/extensions/third-party"
+      - "./config:/home/bun/app/config"
+      - "./data:/home/bun/app/data"
+      - "./plugins:/home/bun/app/plugins"
+      - "./extensions:/home/bun/app/public/scripts/extensions/third-party"
     restart: unless-stopped

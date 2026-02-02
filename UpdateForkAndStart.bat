@@ -100,10 +100,10 @@ if %errorlevel% neq 0 (
     goto end
 )
 
-echo Installing npm packages and starting server
+echo Installing bun packages and starting server
 set NODE_ENV=production
-call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev
-node server.js %*
+call bun install --production
+bun server.js %*
 
 :end
 pause
