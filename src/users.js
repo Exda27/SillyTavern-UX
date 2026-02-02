@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import process from 'node:process';
-import { Buffer } from 'node:buffer';
 
 // Express and other dependencies
 import storage from 'node-persist';
@@ -19,14 +18,9 @@ import { USER_DIRECTORY_TEMPLATE, DEFAULT_USER, PUBLIC_DIRECTORIES, SETTINGS_FIL
 import { getConfigValue, color, delay, generateTimestamp, invalidateFirefoxCache } from './util.js';
 import { readSecret, writeSecret } from './endpoints/secrets.js';
 import { getContentOfType } from './endpoints/content-manager.js';
-import { serverDirectory } from './server-directory.js';
 
 export const KEY_PREFIX = 'user:';
 const AVATAR_PREFIX = 'avatar:';
-const ENABLE_ACCOUNTS = getConfigValue('enableUserAccounts', false, 'boolean');
-const AUTHELIA_AUTH = getConfigValue('sso.autheliaAuth', false, 'boolean');
-const AUTHENTIK_AUTH = getConfigValue('sso.authentikAuth', false, 'boolean');
-const PER_USER_BASIC_AUTH = getConfigValue('perUserBasicAuth', false, 'boolean');
 const ANON_CSRF_SECRET = crypto.randomBytes(64).toString('base64');
 
 /**
@@ -153,40 +147,15 @@ export async function verifySecuritySettings() {
         return;
     }
 
-    if (!ENABLE_ACCOUNTS) {
-        logSecurityAlert('Your current SillyTavern configuration is insecure (listening to non-localhost). Enable whitelisting, basic authentication or user accounts.');
-    }
-
-    const users = await getAllEnabledUsers();
-    const unprotectedUsers = users.filter(x => !x.password);
-    const unprotectedAdminUsers = unprotectedUsers.filter(x => x.admin);
-
-    if (unprotectedUsers.length > 0) {
-        console.warn(color.blue('A friendly reminder that the following users are not password protected:'));
-        unprotectedUsers.map(x => `${color.yellow(x.handle)} ${color.red(x.admin ? '(admin)' : '')}`).forEach(x => console.warn(x));
-        console.log();
-        console.warn(`Consider setting a password in the admin panel or by using the ${color.blue('recover.js')} script.`);
-        console.log();
-
-        if (unprotectedAdminUsers.length > 0) {
-            logSecurityAlert('If you are not using basic authentication or whitelisting, you should set a password for all admin users.');
-        }
-    }
+    logSecurityAlert('Your current SillyTavern configuration is insecure (listening to non-localhost). Enable whitelisting or basic authentication.');
 
     if (basicAuthMode) {
-        const perUserBasicAuth = getConfigValue('perUserBasicAuth', false, 'boolean');
-        if (perUserBasicAuth && !ENABLE_ACCOUNTS) {
-            console.error(color.red(
-                'Per-user basic authentication is enabled, but user accounts are disabled. This configuration may be insecure.',
+        const basicAuthUserName = getConfigValue('basicAuthUser.username', '');
+        const basicAuthUserPassword = getConfigValue('basicAuthUser.password', '');
+        if (!basicAuthUserName || !basicAuthUserPassword) {
+            console.warn(color.yellow(
+                'Basic Authentication is enabled, but username or password is not set or empty!',
             ));
-        } else if (!perUserBasicAuth) {
-            const basicAuthUserName = getConfigValue('basicAuthUser.username', '');
-            const basicAuthUserPassword = getConfigValue('basicAuthUser.password', '');
-            if (!basicAuthUserName || !basicAuthUserPassword) {
-                console.warn(color.yellow(
-                    'Basic Authentication is enabled, but username or password is not set or empty!',
-                ));
-            }
         }
     }
 }
@@ -515,10 +484,8 @@ export async function initUserStorage(dataRoot) {
         expiredInterval: 0,
     });
 
-    const keys = await getAllUserHandles();
-
-    // If there are no users, create the default user
-    if (keys.length === 0) {
+    const existingUser = await storage.getItem(toKey(DEFAULT_USER.handle));
+    if (!existingUser) {
         await storage.setItem(toKey(DEFAULT_USER.handle), DEFAULT_USER);
     }
 }
@@ -624,9 +591,7 @@ export function getCsrfSecret(request) {
  * @returns {Promise<string[]>} - The list of user handles
  */
 export async function getAllUserHandles() {
-    const keys = await storage.keys(x => x.key.startsWith(KEY_PREFIX));
-    const handles = keys.map(x => x.replace(KEY_PREFIX, ''));
-    return handles;
+    return [DEFAULT_USER.handle];
 }
 
 /**
@@ -688,213 +653,20 @@ export async function getUserAvatar(handle) {
 }
 
 /**
- * Checks if the user should be redirected to the login page.
- * @param {import('express').Request} request Request object
- * @returns {boolean} Whether the user should be redirected to the login page
- */
-export function shouldRedirectToLogin(request) {
-    return ENABLE_ACCOUNTS && !request.user;
-}
-
-/**
- * Tries auto-login if there is only one user and it's not password protected.
- * or another configured method such authlia or basic
- * @param {import('express').Request} request Request object
- * @param {boolean} basicAuthMode If Basic auth mode is enabled
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-export async function tryAutoLogin(request, basicAuthMode) {
-    if (!ENABLE_ACCOUNTS || request.user || !request.session) {
-        return false;
-    }
-
-    if (!request.query.noauto) {
-        if (await singleUserLogin(request)) {
-            return true;
-        }
-
-        if (AUTHELIA_AUTH && await autheliaUserLogin(request)) {
-            return true;
-        }
-
-        if (AUTHENTIK_AUTH && await authentikUserLogin(request)) {
-            return true;
-        }
-
-        if (basicAuthMode && PER_USER_BASIC_AUTH && await basicUserLogin(request)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Tries auto-login if there is only one user and it's not password protected.
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function singleUserLogin(request) {
-    if (!request.session) {
-        return false;
-    }
-
-    const userHandles = await getAllUserHandles();
-    if (userHandles.length === 1) {
-        const user = await storage.getItem(toKey(userHandles[0]));
-        if (user && !user.password) {
-            request.session.handle = userHandles[0];
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * Attempts auto-login using an Authelia header.
- * https://www.authelia.com/integration/trusted-header-sso/introduction/
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function autheliaUserLogin(request) {
-    return headerUserLogin(request, 'Remote-User');
-}
-
-/**
- * Attempts auto-login using an Authentik header.
- * https://docs.goauthentik.io/add-secure-apps/providers/proxy/forward_auth/
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function authentikUserLogin(request) {
-    return headerUserLogin(request, 'X-Authentik-Username');
-}
-
-/**
- * Tries auto-login with a given header.
- * @param {import('express').Request} request Request object
- * @param {string} [header='Remote-User'] The header to use for the trusted user
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function headerUserLogin(request, header = 'Remote-User') {
-    if (!request.session) {
-        return false;
-    }
-
-    const remoteUser = request.get(header);
-    if (!remoteUser) {
-        return false;
-    }
-    console.debug(`Attempting auto-login for user from header ${header}: ${remoteUser}`);
-
-    const userHandles = await getAllUserHandles();
-    for (const userHandle of userHandles) {
-        if (remoteUser.toLowerCase() === userHandle) {
-            const user = await storage.getItem(toKey(userHandle));
-            if (user && user.enabled) {
-                request.session.handle = userHandle;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-/**
- * Tries auto-login with basic auth username.
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function basicUserLogin(request) {
-    if (!request.session) {
-        return false;
-    }
-
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader) {
-        return false;
-    }
-
-    const [scheme, credentials] = authHeader.split(' ');
-
-    if (scheme !== 'Basic' || !credentials) {
-        return false;
-    }
-
-    const [username, password] = Buffer.from(credentials, 'base64')
-        .toString('utf8')
-        .split(':');
-
-    const userHandles = await getAllUserHandles();
-    for (const userHandle of userHandles) {
-        if (username === userHandle) {
-            const user = await storage.getItem(toKey(userHandle));
-            // Verify pass again here just to be sure
-            if (user && user.enabled && user.password && user.password === getPasswordHash(password, user.salt)) {
-                request.session.handle = userHandle;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-/**
  * Middleware to add user data to the request object.
  * @param {import('express').Request} request Request object
  * @param {import('express').Response} response Response object
  * @param {import('express').NextFunction} next Next function
  */
 export async function setUserDataMiddleware(request, response, next) {
-    // If user accounts are disabled, use the default user
-    if (!ENABLE_ACCOUNTS) {
-        const handle = DEFAULT_USER.handle;
-        const directories = getUserDirectories(handle);
-        request.user = {
-            profile: DEFAULT_USER,
-            directories: directories,
-        };
-        return next();
-    }
-
-    if (!request.session) {
-        console.error('Session not available');
-        return response.sendStatus(500);
-    }
-
-    // If user accounts are enabled, get the user from the session
-    let handle = request.session?.handle;
-
-    // If we have the only user and it's not password protected, use it
-    if (!handle) {
-        return next();
-    }
-
-    /** @type {User} */
-    const user = await storage.getItem(toKey(handle));
-
-    if (!user) {
-        console.error('User not found:', handle);
-        return next();
-    }
-
-    if (!user.enabled) {
-        console.error('User is disabled:', handle);
-        return next();
-    }
-
+    const handle = DEFAULT_USER.handle;
     const directories = getUserDirectories(handle);
+    /** @type {User} */
+    const user = await storage.getItem(toKey(handle)) ?? DEFAULT_USER;
     request.user = {
         profile: user,
         directories: directories,
     };
-
-    // Touch the session if loading the home page
-    if (request.method === 'GET' && request.path === '/') {
-        request.session.touch = Date.now();
-    }
 
     return next();
 }
@@ -911,31 +683,6 @@ export function requireLoginMiddleware(request, response, next) {
     }
 
     return next();
-}
-
-/**
- * Middleware to host the login page.
- * @param {import('express').Request} request Request object
- * @param {import('express').Response} response Response object
- */
-export async function loginPageMiddleware(request, response) {
-    if (!ENABLE_ACCOUNTS) {
-        console.log('User accounts are disabled. Redirecting to index page.');
-        return response.redirect('/');
-    }
-
-    try {
-        const { basicAuthMode } = globalThis.COMMAND_LINE_ARGS;
-        const autoLogin = await tryAutoLogin(request, basicAuthMode);
-
-        if (autoLogin) {
-            return response.redirect('/');
-        }
-    } catch (error) {
-        console.error('Error during auto-login:', error);
-    }
-
-    return response.sendFile('login.html', { root: path.join(serverDirectory, 'public') });
 }
 
 /**
@@ -990,26 +737,6 @@ function createExtensionsRouteHandler(directoryFn) {
 }
 
 /**
- * Verifies that the current user is an admin.
- * @param {import('express').Request} request Request object
- * @param {import('express').Response} response Response object
- * @param {import('express').NextFunction} next Next function
- * @returns {any}
- */
-export function requireAdminMiddleware(request, response, next) {
-    if (!request.user) {
-        return response.sendStatus(403);
-    }
-
-    if (request.user.profile.admin) {
-        return next();
-    }
-
-    console.warn('Unauthorized access to admin endpoint:', request.originalUrl);
-    return response.sendStatus(403);
-}
-
-/**
  * Creates an archive of the user's data root directory.
  * @param {string} handle User handle
  * @param {import('express').Response} response Express response object to write to
@@ -1043,30 +770,6 @@ export async function createBackupArchive(handle, response) {
     // Append files from a sub-directory, putting its contents at the root of archive
     archive.directory(directories.root, false);
     archive.finalize();
-}
-
-/**
- * Gets all of the users.
- * @returns {Promise<User[]>}
- */
-async function getAllUsers() {
-    if (!ENABLE_ACCOUNTS) {
-        return [];
-    }
-    /**
-     * @type {User[]}
-     */
-    const users = await storage.values();
-    return users;
-}
-
-/**
- * Gets all of the enabled users.
- * @returns {Promise<User[]>}
- */
-export async function getAllEnabledUsers() {
-    const users = await getAllUsers();
-    return users.filter(x => x.enabled);
 }
 
 /**
