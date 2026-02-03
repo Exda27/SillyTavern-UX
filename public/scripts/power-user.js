@@ -206,6 +206,7 @@ export const power_user = {
     expand_message_actions: false,
     enableZenSliders: false,
     enableLabMode: false,
+    show_advanced_ai_config: false,
     prefer_character_prompt: true,
     prefer_character_jailbreak: true,
     quick_continue: false,
@@ -618,6 +619,11 @@ async function switchZenSliders() {
         $('div[id$="_zenslider"]').remove();
     }
 
+}
+
+function switchAdvancedAiConfig() {
+    $('body').toggleClass('show-advanced-ai-config', power_user.show_advanced_ai_config);
+    $('#toggle_advanced_ai_config').prop('checked', power_user.show_advanced_ai_config);
 }
 async function CreateZenSliders(elmnt) {
     var originalSlider = elmnt;
@@ -1493,6 +1499,7 @@ export function applyPowerUserSettings() {
     switchTokenCount();
     switchMessageActions();
     switchSwipeNumAllMessages();
+    switchAdvancedAiConfig();
 }
 
 export function applyStylePins() {
@@ -1715,6 +1722,7 @@ export async function loadPowerUserSettings(settings, data) {
     $('#prefer_character_jailbreak').prop('checked', power_user.prefer_character_jailbreak);
     $('#enableZenSliders').prop('checked', power_user.enableZenSliders).trigger('input');
     $('#enableLabMode').prop('checked', power_user.enableLabMode).trigger('input', { fromInit: true });
+    $('#toggle_advanced_ai_config').prop('checked', power_user.show_advanced_ai_config);
     $(`input[name="avatar_style"][value="${power_user.avatar_style}"]`).prop('checked', true);
     $(`#chat_display option[value=${power_user.chat_display}]`).prop('selected', true).trigger('change');
     $(`#toastr_position option[value=${power_user.toastr_position}]`).prop('selected', true).trigger('change');
@@ -3876,6 +3884,12 @@ jQuery(() => {
 
         power_user.enableLabMode = value;
         switchLabMode({ noReset: fromInit });
+        saveSettingsDebounced();
+    });
+
+    $('#toggle_advanced_ai_config').on('input', function () {
+        power_user.show_advanced_ai_config = !!$(this).prop('checked');
+        switchAdvancedAiConfig();
         saveSettingsDebounced();
     });
 
