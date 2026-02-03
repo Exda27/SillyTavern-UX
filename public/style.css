@@ -5352,6 +5352,66 @@ body:not(.caption) .mes_img_caption {
     left: 0;
 }
 
+#top-settings-holder .drawer {
+    order: 100;
+}
+
+#ai-config-button {
+    order: 1;
+}
+
+#sys-settings-button {
+    order: 2;
+}
+
+#WI-SP-button {
+    order: 3;
+}
+
+#user-settings-button {
+    order: 4;
+}
+
+#backgrounds-button {
+    order: 5;
+}
+
+#persona-management-button {
+    order: 6;
+}
+
+#more-settings-button {
+    order: 7;
+}
+
+#advanced-formatting-button {
+    order: 8;
+}
+
+#extensions-settings-button {
+    order: 9;
+}
+
+#rightNavHolder {
+    order: 10;
+}
+
+.drawer-advanced {
+    display: none;
+}
+
+#top-settings-holder:has(#advanced-settings-toggle:checked) .drawer-advanced {
+    display: flex;
+}
+
+#top-settings-holder:has(#advanced-settings-toggle:checked) #advanced-settings-toggle-icon {
+    opacity: 1;
+}
+
+.drawer-more-settings .drawer-icon {
+    font-size: calc(var(--topBarIconSize) * 0.9);
+}
+
 body:has(.drawer-content.maximized) #top-settings-holder:has(.drawer-content.openDrawer:not(.fillLeft):not(.fillRight)),
 body:has(.drawer-content.open) #top-settings-holder:has(.drawer-content.openDrawer:not(.fillLeft):not(.fillRight)),
 body:has(#character_popup.open) #top-settings-holder:has(.drawer-content.openDrawer:not(.fillLeft):not(.fillRight)) {
