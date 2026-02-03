@@ -64,6 +64,7 @@
     <div id="top-bar">
     </div>
     <div id="top-settings-holder">
+        <input type="checkbox" id="advanced-settings-toggle" class="advanced-settings-toggle" hidden>
         <!-- background selection menu -->
         <div id="ai-config-button" class="drawer">
             <div class="drawer-toggle drawer-header">
@@ -3925,7 +3926,7 @@
                 </div>
             </div>
         </div>
-        <div id="advanced-formatting-button" class="drawer">
+        <div id="advanced-formatting-button" class="drawer drawer-advanced">
             <div class="drawer-toggle">
                 <div class="drawer-icon fa-solid fa-font fa-fw closedIcon" title="AI Response Formatting" data-i18n="[title]AI Response Formatting"></div>
             </div>
@@ -5545,7 +5546,7 @@
                 </button>
             </div>
         </div>
-        <div id="extensions-settings-button" class="drawer">
+        <div id="extensions-settings-button" class="drawer drawer-advanced">
             <div class="drawer-toggle">
                 <div class="drawer-icon fa-solid fa-cubes fa-fw closedIcon" title="Extensions" data-i18n="[title]Extensions"></div>
             </div>
@@ -5788,6 +5789,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id="more-settings-button" class="drawer drawer-more-settings">
+            <div class="drawer-toggle drawer-header">
+                <label id="advanced-settings-toggle-icon" class="drawer-icon fa-solid fa-ellipsis fa-fw closedIcon" for="advanced-settings-toggle" title="More Settings" data-i18n="[title]More Settings"></label>
             </div>
         </div>
         <div id="rightNavHolder" class="drawer">
