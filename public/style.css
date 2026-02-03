@@ -123,6 +123,8 @@
     --avatar-base-border-radius: 2px;
     --avatar-base-border-radius-round: 50%;
     --avatar-base-border-radius-rounded: 10px;
+    --big-avatar-height-factor: 4;
+    --big-avatar-width-factor: 3;
     --inline-avatar-small-factor: 0.6;
 
     --animation-duration: 125ms;
@@ -750,41 +752,38 @@ hr {
 /*TOPPER margin*/
 
 #top-bar {
-    width: var(--sheldWidth);
-    margin: 0 auto;
+    position: absolute !important;
     left: 0;
-    right: 0;
+    width: 100px;
     display: inline-block;
-    height: var(--bottomFormBlockSize);
-    position: absolute;
-    /* border-bottom: 1px solid var(--SmartThemeBorderColor); */
+    height: 100%;
     box-shadow: 0 2px 20px 0 var(--black70a);
     backdrop-filter: blur(var(--SmartThemeBlurStrength));
     background-color: var(--SmartThemeBlurTintColor);
     -webkit-backdrop-filter: blur(var(--SmartThemeBlurStrength));
     z-index: 3005;
+    margin: 0;
 }
 
 #sheld {
     display: flex;
     flex-direction: column;
     /* -1px to give sheld some wiggle room to bounce off tobar when moving*/
-    height: calc(100vh - var(--topBarBlockSize) - 1px);
-    height: calc(100dvh - var(--topBarBlockSize) - 1px);
-    max-height: calc(100dvh - var(--topBarBlockSize) - 1px);
+    height: 100vh;
+    max-height: 100% !important;
     overflow-x: hidden;
     /* max-width: 50vw; */
     position: absolute;
-    left: calc((100vw - var(--sheldWidth))/2);
-    left: calc((100dvw - var(--sheldWidth))/2);
-    top: var(--topBarBlockSize);
-    margin: 0 auto;
-    left: 0;
-    right: 0;
+    left: calc(50vw);
+    top: 0;
+    bottom: 0;
+    margin: 0;
     z-index: 30;
     min-height: 100px;
     min-width: 100px;
     width: var(--sheldWidth);
+    max-width: calc(50vw - 100px);
+    padding: 20px;
 }
 
 .drag-grabber {
@@ -855,7 +854,8 @@ body .panelControlBar {
 }
 
 #chat {
-    max-height: calc(100vh - calc(var(--topBarBlockSize) + var(--bottomFormBlockSize)));
+    max-height: 100%;
+    height: 100%;
     overflow-x: hidden;
     padding-bottom: 0;
     overflow-y: scroll;
@@ -871,6 +871,7 @@ body .panelControlBar {
     flex-direction: column;
     z-index: 30;
     flex-grow: 1;
+    border-radius: 10px 10px 0px 0px;
 }
 
 #form_sheld {
@@ -1393,6 +1394,11 @@ body.hideAllSwipeButtons :is(.swipe_left, .swipe_right),
     cursor: pointer;
 }
 
+.mesAvatarWrapper > .avatar {
+    --big-avatar-height-factor: 1.5 !important;
+    --big-avatar-width-factor: 1.2 !important;
+}
+
 .hotswap {
     margin: 5px;
     justify-content: space-evenly;
@@ -1548,8 +1554,8 @@ button {
 }
 
 #send_textarea {
-    min-height: calc(var(--bottomFormBlockSize) + 2px);
-    height: calc(var(--bottomFormBlockSize) + 2px);
+    min-height: 42px;
+    height: 42px;
     max-height: 50vh;
     max-height: 50dvh;
     word-wrap: break-word;
@@ -2659,6 +2665,15 @@ input[type="file"] {
     display: none;
 }
 
+#right-nav-panel {
+    left: 100px;
+    right: 0;
+    width: 80vw;
+    margin: 0 auto;
+    top: var(--topBarBlockSize);
+    height: max-content;
+}
+
 #right-nav-panel-tabs {
     display: flex;
     align-items: center;
@@ -3219,6 +3234,12 @@ input[type=search]:focus::-webkit-search-cancel-button {
     border-radius: 10px;
     cursor: pointer;
     margin-bottom: 1px;
+}
+
+.character_select,
+.character_select_container,
+.character_name_block > .ch_name {
+    max-width: calc(10px + var(--avatar-base-width) * var(--big-avatar-width-factor)) !important;
 }
 
 .character_select.inline_avatar,
@@ -5318,14 +5339,17 @@ body:not(.caption) .mes_img_caption {
 /*------------ TOP SIDE SETTINGS ----------------*/
 
 #top-settings-holder {
+    position: absolute !important;
     display: flex;
-    margin: 0 auto;
-    height: var(--topBarBlockSize);
-    justify-content: center;
+    height: 100%;
+    justify-content: space-around;
     z-index: 3005;
     position: relative;
-    width: var(--sheldWidth);
-
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    width: 100px;
+    left: 0;
 }
 
 body:has(.drawer-content.maximized) #top-settings-holder:has(.drawer-content.openDrawer:not(.fillLeft):not(.fillRight)),
@@ -5417,14 +5441,14 @@ body:has(#character_popup.open) #top-settings-holder:has(.drawer-content.openDra
     padding: 5px;
     border: 1px solid var(--SmartThemeBorderColor);
     min-width: 450px;
-    width: var(--sheldWidth);
+    width: 80vw;
     overflow-y: hidden;
     max-height: calc(100vh - calc(var(--topBarBlockSize) + var(--bottomFormBlockSize)));
     max-height: calc(100dvh - calc(var(--topBarBlockSize) + var(--bottomFormBlockSize)));
     display: none;
-    position: absolute;
+    position: fixed;
     top: var(--topBarBlockSize);
-    left: 0;
+    left: 100px;
     right: 0;
     margin: 0 auto;
     height: 0;
@@ -5494,8 +5518,10 @@ body:not(.movingUI) .drawer-content.maximized {
 }
 
 .fillLeft {
-    left: 0;
-    right: auto;
+    left: 100px;
+    right: 0;
+    width: 80vw;
+    margin: 0 auto;
 }
 
 .fillRight {
@@ -5736,6 +5762,17 @@ body:not(.movingUI) .drawer-content.maximized {
     padding: 5px;
 }
 
+.draggable.zoomed_avatar {
+    height: 100vh;
+    max-height: 100% !important;
+    padding: 20px;
+    width: calc(50vw - 100px);
+    max-width: calc(50vw);
+    top: 0;
+    left: 100px;
+    backdrop-filter: none;
+}
+
 .zoomed_avatar {
     /* Max height with 2/3 aspect ratio */
     --maxWidth: calc(90vh * 0.666);
@@ -5760,17 +5797,22 @@ body:not(.movingUI) .drawer-content.maximized {
 } */
 
 .zoomed_avatar_container {
-    width: 100%;
-    /* margin-inline: 10px; */
-    max-height: 90vh;
-    max-width: 90dvh;
+    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: end;
 }
 
 .zoomed_avatar img {
-    height: unset !important;
-    width: 100%;
-    object-fit: contain !important;
+    height: 90% !important;
+    width: auto;
+    max-width: 100% !important;
+    object-fit: cover !important;
     border-radius: 10px;
+    padding: 0px;
+    vertical-align: center;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
