@@ -1,7 +1,10 @@
 import process from 'node:process';
 import path from 'node:path';
-import webpack from 'webpack';
+import { createRequire } from 'node:module';
 import { serverDirectory } from './src/server-directory.js';
+
+const require = createRequire(import.meta.url);
+const webpack = require('webpack');
 
 /**
  * Get the Webpack configuration for the public/lib.js file.

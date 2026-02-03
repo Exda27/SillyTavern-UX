@@ -1,6 +1,9 @@
 import path from 'node:path';
-import webpack from 'webpack';
+import { createRequire } from 'node:module';
 import getPublicLibConfig from '../../webpack.config.js';
+
+const require = createRequire(import.meta.url);
+const webpack = require('webpack');
 
 export default function getWebpackServeMiddleware() {
     /**
